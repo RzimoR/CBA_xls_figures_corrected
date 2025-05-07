@@ -78,8 +78,11 @@ document.getElementById("calcForm").addEventListener("submit", async function(e)
     
     const maxNPV = Math.max(...res.data.map(r => r.npv));
     html = html.replace(/<tr>(.*?)<\/tr>/g, (row) => {
-      const npvInRow = parseFloat(row.match(/<td>(.*?)<\/td>/)[1]);
-      return Math.abs(npvInRow - maxNPV) < 0.01 ? row.replace('<tr>', '<tr style=\"font-weight:bold\">') : row;
+      const npvMatch = row.match(/<td>(\d+(?:\.\d+)?)<\/td>/g);
+      if (!npvMatch || npvMatch.length < 7) return row;
+      const npvInRow = parseFloat(npvMatch[6].replace(/<[^>]+>/g, ''));
+      return Math.abs(npvInRow - maxNPV) < 0.01 ? row.replace('<tr>', '<tr style="font-weight:bold">') : row;
+    });
     });
     document.getElementById("results").innerHTML = html;
 
