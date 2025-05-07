@@ -15,7 +15,7 @@
     <h3 class="mb-0">Economic Evaluation of Investment Alternatives</h3>
   </div>
 
-  <form id="calcForm">
+  <form id="calcForm" id="calcForm">
     <table class="table table-bordered table-striped align-middle">
       <thead class="table-light">
         <tr><th>Name</th><th>CAPEX</th><th>OPEX</th><th>Benefits</th><th>Years</th><th>Discount Rate (%)</th></tr>
@@ -79,7 +79,7 @@ document.getElementById("calcForm").addEventListener("submit", async function(e)
     const maxNPV = Math.max(...res.data.map(r => r.npv));
     html = html.replace(/<tr>(.*?)<\/tr>/g, (row) => {
       const npvInRow = parseFloat(row.match(/<td>(.*?)<\/td>/)[1]);
-      return Math.abs(npvInRow - maxNPV) < 0.01 ? row.replace('<tr>', '<tr style="font-weight:bold">')) : row;
+      return Math.abs(npvInRow - maxNPV) < 0.01 ? row.replace('<tr>', '<tr style=\"font-weight:bold\">') : row;
     });
     document.getElementById("results").innerHTML = html;
 
