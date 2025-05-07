@@ -15,7 +15,7 @@
     <h3 class="mb-0">Economic Evaluation of Investment Alternatives</h3>
   </div>
 
-  <form id="calcForm" id="calcForm">
+  <form id="calcForm" id="calcForm" id="calcForm">
     <table class="table table-bordered table-striped align-middle">
       <thead class="table-light">
         <tr><th>Name</th><th>CAPEX</th><th>OPEX</th><th>Benefits</th><th>Years</th><th>Discount Rate (%)</th></tr>
@@ -25,7 +25,7 @@
       </tbody>
     </table>
     
-<button type="button" class="btn btn-primary" id="calculateBtn">Calculate CBA</button>
+<button type="submit" class="btn btn-primary">Calculate CBA</button>
 <button type="button" class="btn btn-secondary ms-2" onclick="resetCBA()">Reset CBA</button>
 <a href="https://smartgrideval.unica.it/main_cba/" class="btn btn-outline-dark ms-2">Back to Smartgrideval</a>
 
@@ -42,31 +42,32 @@
 
   <button class="btn btn-success mt-3" onclick="downloadExcel()">Download Excel</button>
 
-<script>window.addEventListener("DOMContentLoaded", function() {
 
-let latestResults = [];
 
-document.getElementById("calculateBtn").addEventListener("click", async function() {
-  const data = [];
-  for (let i = 1; i <= 6; i++) {
-    const name = document.getElementById(`name${i}`).value;
-    const capex = parseFloat(document.getElementById(`capex${i}`).value);
-    const opex = parseFloat(document.getElementById(`opex${i}`).value);
-    const benefits = parseFloat(document.getElementById(`benefits${i}`).value);
-    const years = parseInt(document.getElementById(`years${i}`).value);
-    const rate = parseFloat(document.getElementById(`rate${i}`).value);
-    if (!isNaN(capex) && !isNaN(opex) && !isNaN(benefits) && !isNaN(years) && !isNaN(rate)) {
-      data.push({ name, capex, opex, benefits, years, rate });
+<script>
+document.addEventListener("DOMContentLoaded", function() {
+  document.getElementById("calcForm").addEventListener("submit", async function(e) {
+    e.preventDefault();
+    const data = [];
+    for (let i = 1; i <= 6; i++) {
+      const name = document.getElementById(`name${i}`).value;
+      const capex = parseFloat(document.getElementById(`capex${i}`).value);
+      const opex = parseFloat(document.getElementById(`opex${i}`).value);
+      const benefits = parseFloat(document.getElementById(`benefits${i}`).value);
+      const years = parseInt(document.getElementById(`years${i}`).value);
+      const rate = parseFloat(document.getElementById(`rate${i}`).value);
+      if (!isNaN(capex) && !isNaN(opex) && !isNaN(benefits) && !isNaN(years) && !isNaN(rate)) {
+        data.push({ name, capex, opex, benefits, years, rate });
+      }
     }
-  }
-  try {
+
     if (data.length === 0) {
-  document.getElementById("error-message").innerText = "Please fill in at least one complete row.";
-  return;
-}
-document.getElementById("error-message").innerText = "";
-const res = await axios.post("/calculate", data);
-    latestResults = res.data;
+      document.getElementById("error-message").innerText = "Please fill in at least one complete row.";
+      return;
+    }
+    document.getElementById("error-message").innerText = "";
+
+    const res = await axios.post("/calculate", data);
     let html = `
       <table class='table table-bordered results-table'>
         <thead><tr>
@@ -80,7 +81,7 @@ const res = await axios.post("/calculate", data);
       </tr>`;
     });
     html += "</tbody></table>";
-    
+
     const maxNPV = Math.max(...res.data.map(r => r.npv));
     html = html.replace(/<tr>(.*?)<\/tr>/g, (row) => {
       const npvMatch = row.match(/<td>(\d+(?:\.\d+)?)<\/td>/g);
@@ -88,72 +89,11 @@ const res = await axios.post("/calculate", data);
       const npvInRow = parseFloat(npvMatch[6].replace(/<[^>]+>/g, ''));
       return Math.abs(npvInRow - maxNPV) < 0.01 ? row.replace('<tr>', '<tr style="font-weight:bold">') : row;
     });
-    });
+
     document.getElementById("results").innerHTML = html;
-
-    const labels = res.data.map(r => r.name);
-    const npvs = res.data.map(r => r.npv);
-    const irrs = res.data.map(r => r.irr);
-    const cbrs = res.data.map(r => r.cbr);
-
-    new Chart(document.getElementById("npvChart"), {
-      type: 'bar',
-      data: {
-        labels: labels,
-        datasets: [{ label: "NPV", data: npvs }]
-      }
-    });
-    new Chart(document.getElementById("irrChart"), {
-      type: 'bar',
-      data: {
-        labels: labels,
-        datasets: [{ label: "IRR", data: irrs }]
-      }
-    });
-    new Chart(document.getElementById("cbrChart"), {
-      type: 'bar',
-      data: {
-        labels: labels,
-        datasets: [{ label: "CB Ratio", data: cbrs }]
-      }
-    });
-    
-  } catch(err) {
-    <p class='text-danger'>Error in calculation.</p>";
-  }
+  });
 });
+</script>
 
-function downloadExcel() {
-  if (!latestResults.length) return alert("No results yet.");
-  const table = document.querySelector(".results-table");
-  const wb = XLSX.utils.table_to_book(table, { sheet: "CBA Results" });
-  XLSX.writeFile(wb, "CBA results.xlsx");
-}
-
-function resetCBA() {
-  for (let i = 1; i <= 6; i++) {
-    document.getElementById(`name${i}`).value = `A.${i}`;
-    document.getElementById(`capex${i}`).value = "";
-    document.getElementById(`opex${i}`).value = "";
-    document.getElementById(`benefits${i}`).value = "";
-    document.getElementById(`years${i}`).value = "";
-    document.getElementById(`rate${i}`).value = "";
-  }
-    document.getElementById("npvChart").remove();
-  document.getElementById("irrChart").remove();
-  document.getElementById("cbrChart").remove();
-  const canvases = `
-    <canvas id="npvChart"></canvas>
-    <canvas id="irrChart"></canvas>
-    <canvas id="cbrChart"></canvas>`;
-  const row = document.createElement("div");
-  row.className = "row mt-4";
-  row.innerHTML = `<div class="col-md-4">${canvases.split('</canvas>')[0]}</canvas></div>
-                   <div class="col-md-4">${canvases.split('</canvas>')[1]}</canvas></div>
-                   <div class="col-md-4">${canvases.split('</canvas>')[2]}</canvas></div>`;
-  document.body.appendChild(row);
-}
-
-});</script>
 </body>
 </html>
