@@ -42,7 +42,8 @@
 
   <button class="btn btn-success mt-3" onclick="downloadExcel()">Download Excel</button>
 
-<script>
+<script>window.addEventListener("DOMContentLoaded", function() {
+
 let latestResults = [];
 
 document.getElementById("calculateBtn").addEventListener("click", async function() {
@@ -152,6 +153,7 @@ function resetCBA() {
                    <div class="col-md-4">${canvases.split('</canvas>')[2]}</canvas></div>`;
   document.body.appendChild(row);
 }
-</script>
+
+});</script>
 </body>
 </html>
