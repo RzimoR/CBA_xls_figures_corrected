@@ -25,7 +25,7 @@
       </tbody>
     </table>
     
-<button type="submit" class="btn btn-primary">Calculate CBA</button>
+<button type="button" class="btn btn-primary" id="calculateBtn">Calculate CBA</button>
 <button type="button" class="btn btn-secondary ms-2" onclick="resetCBA()">Reset CBA</button>
 <a href="https://smartgrideval.unica.it/main_cba/" class="btn btn-outline-dark ms-2">Back to Smartgrideval</a>
 
@@ -45,8 +45,7 @@
 <script>
 let latestResults = [];
 
-document.getElementById("calcForm").addEventListener("submit", async function(e) {
-  e.preventDefault();
+document.getElementById("calculateBtn").addEventListener("click", async function() {
   const data = [];
   for (let i = 1; i <= 6; i++) {
     const name = document.getElementById(`name${i}`).value;
