@@ -60,7 +60,12 @@ document.getElementById("calcForm").addEventListener("submit", async function(e)
     }
   }
   try {
-    const res = await axios.post("/calculate", data);
+    if (data.length === 0) {
+  document.getElementById("error-message").innerText = "Please fill in at least one complete row.";
+  return;
+}
+document.getElementById("error-message").innerText = "";
+const res = await axios.post("/calculate", data);
     latestResults = res.data;
     let html = `
       <table class='table table-bordered results-table'>
@@ -114,7 +119,7 @@ document.getElementById("calcForm").addEventListener("submit", async function(e)
     });
     
   } catch(err) {
-    document.getElementById("results").innerHTML = "<p class='text-danger'>Error in calculation.</p>";
+    <p class='text-danger'>Error in calculation.</p>";
   }
 });
 
@@ -134,8 +139,7 @@ function resetCBA() {
     document.getElementById(`years${i}`).value = "";
     document.getElementById(`rate${i}`).value = "";
   }
-  document.getElementById("results").innerHTML = "";
-  document.getElementById("npvChart").remove();
+    document.getElementById("npvChart").remove();
   document.getElementById("irrChart").remove();
   document.getElementById("cbrChart").remove();
   const canvases = `
