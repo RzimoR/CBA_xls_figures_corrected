@@ -11,6 +11,7 @@
   <div class="container mt-4">
     <h1>Cost-Benefit Analysis</h1>
     <form id="calcForm">
+      <!-- Campi di input originali -->
       <div class="mb-3">
         <label for="name" class="form-label">Nome progetto</label>
         <input type="text" class="form-control" id="name" name="name" required>
@@ -32,7 +33,7 @@
         <input type="number" class="form-control" id="years" name="years" required>
       </div>
       <div class="mb-3">
-        <label for="rate" class="form-label">Rate (%)</label>
+        <label for="rate" class="form-label">Tasso di sconto (%)</label>
         <input type="number" class="form-control" id="rate" name="rate" step="0.01" required>
       </div>
       <button type="submit" class="btn btn-primary">Calcola CBA</button>
@@ -41,53 +42,42 @@
     <div id="results" class="mt-4"></div>
 
     <div class="row mt-4">
-      <div class="col">
-        <canvas id="npvChart"></canvas>
-      </div>
-      <div class="col">
-        <canvas id="irrChart"></canvas>
-      </div>
-      <div class="col">
-        <canvas id="cbrChart"></canvas>
-      </div>
+      <div class="col"><canvas id="npvChart"></canvas></div>
+      <div class="col"><canvas id="irrChart"></canvas></div>
+      <div class="col"><canvas id="cbrChart"></canvas></div>
     </div>
   </div>
 
+  <!-- Librerie esterne -->
   <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <!-- Script di gestione e evidenziazione NPV -->
   <script>
     document.getElementById('calcForm').addEventListener('submit', async function(e) {
       e.preventDefault();
       const formData = new FormData(this);
       const data = Object.fromEntries(formData.entries());
       try {
-        const response = await axios.post('/calculate', data);
-        const results = response.data;
+        const res = await axios.post('/calculate', data);
+        const results = res.data;
 
-        // Trovo il massimo NPV
+        // Calcolo del massimo NPV
         const maxNPV = Math.max(...results.map(r => r.npv));
 
-        // Costruisco la tabella dei risultati
-        let tableHtml = `
+        // Costruzione tabella dei risultati
+        let html = `
           <table class="table table-bordered">
             <thead>
               <tr>
-                <th>Nome</th>
-                <th>CAPEX</th>
-                <th>OPEX</th>
-                <th>Benefici</th>
-                <th>Anni</th>
-                <th>Rate</th>
-                <th>NPV</th>
-                <th>IRR</th>
-                <th>CBR</th>
+                <th>Nome</th><th>CAPEX</th><th>OPEX</th><th>Benefici</th>
+                <th>Anni</th><th>Tasso</th><th>NPV</th><th>IRR</th><th>CBR</th>
               </tr>
             </thead>
             <tbody>`;
 
         results.forEach(r => {
           const isBest = Math.abs(r.npv - maxNPV) < 1e-6;
-          tableHtml += `
+          html += `
             <tr${isBest ? ' class="table-success"' : ''}>
               <td>${r.name}</td>
               <td>${r.capex}</td>
@@ -101,34 +91,31 @@
             </tr>`;
         });
 
-        tableHtml += `
+        html += `
             </tbody>
           </table>
-          <button class="btn btn-success" onclick="downloadExcel()">
-            Scarica Excel
-          </button>`;
+          <button class="btn btn-success" onclick="downloadExcel()">Scarica Excel</button>`;
 
-        document.getElementById('results').innerHTML = tableHtml;
+        document.getElementById('results').innerHTML = html;
 
-        // Genero i grafici
+        // Disegno grafici
         const labels = results.map(r => r.name);
         new Chart(document.getElementById('npvChart'), {
           type: 'bar',
-          data: { labels: labels, datasets: [{ label: 'NPV', data: results.map(r => r.npv) }] },
+          data: { labels, datasets: [{ label: 'NPV', data: results.map(r => r.npv) }] },
           options: {}
         });
         new Chart(document.getElementById('irrChart'), {
           type: 'bar',
-          data: { labels: labels, datasets: [{ label: 'IRR', data: results.map(r => r.irr) }] },
+          data: { labels, datasets: [{ label: 'IRR', data: results.map(r => r.irr) }] },
           options: {}
         });
         new Chart(document.getElementById('cbrChart'), {
           type: 'bar',
-          data: { labels: labels, datasets: [{ label: 'CBR', data: results.map(r => r.cbr) }] },
+          data: { labels, datasets: [{ label: 'CBR', data: results.map(r => r.cbr) }] },
           options: {}
         });
-
-      } catch (error) {
+      } catch (err) {
         document.getElementById('results').innerHTML = '<p class="text-danger">Errore nel calcolo.</p>';
       }
     });
@@ -139,3 +126,4 @@
   </script>
 </body>
 </html>
+
