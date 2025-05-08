@@ -37,7 +37,9 @@
       </div>
       <button type="submit" class="btn btn-primary">Calcola CBA</button>
     </form>
+
     <div id="results" class="mt-4"></div>
+
     <div class="row mt-4">
       <div class="col">
         <canvas id="npvChart"></canvas>
@@ -54,30 +56,38 @@
   <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <script>
-    document.getElementById("calcForm").addEventListener("submit", async (e) => {
+    document.getElementById('calcForm').addEventListener('submit', async function(e) {
       e.preventDefault();
-      const formData = new FormData(e.target);
+      const formData = new FormData(this);
       const data = Object.fromEntries(formData.entries());
       try {
-        const res = await axios.post("/calculate", data);
-        const results = res.data;
+        const response = await axios.post('/calculate', data);
+        const results = response.data;
 
-        // Calcola il massimo NPV
+        // Trovo il massimo NPV
         const maxNPV = Math.max(...results.map(r => r.npv));
 
-        // Costruisci la tabella dei risultati
-        let html = `
+        // Costruisco la tabella dei risultati
+        let tableHtml = `
           <table class="table table-bordered">
             <thead>
               <tr>
-                <th>Nome</th><th>CAPEX</th><th>OPEX</th><th>Benefici</th>
-                <th>Anni</th><th>Rate</th><th>NPV</th><th>IRR</th><th>CBR</th>
+                <th>Nome</th>
+                <th>CAPEX</th>
+                <th>OPEX</th>
+                <th>Benefici</th>
+                <th>Anni</th>
+                <th>Rate</th>
+                <th>NPV</th>
+                <th>IRR</th>
+                <th>CBR</th>
               </tr>
             </thead>
             <tbody>`;
+
         results.forEach(r => {
           const isBest = Math.abs(r.npv - maxNPV) < 1e-6;
-          html += `
+          tableHtml += `
             <tr${isBest ? ' class="table-success"' : ''}>
               <td>${r.name}</td>
               <td>${r.capex}</td>
@@ -90,34 +100,36 @@
               <td>${r.cbr}</td>
             </tr>`;
         });
-        html += `
+
+        tableHtml += `
             </tbody>
           </table>
           <button class="btn btn-success" onclick="downloadExcel()">
             Scarica Excel
           </button>`;
-        document.getElementById("results").innerHTML = html;
 
-        // Disegna i grafici
+        document.getElementById('results').innerHTML = tableHtml;
+
+        // Genero i grafici
         const labels = results.map(r => r.name);
-        new Chart(document.getElementById("npvChart"), {
+        new Chart(document.getElementById('npvChart'), {
           type: 'bar',
-          data: { labels, datasets: [{ label: 'NPV', data: results.map(r => r.npv) }] },
+          data: { labels: labels, datasets: [{ label: 'NPV', data: results.map(r => r.npv) }] },
           options: {}
         });
-        new Chart(document.getElementById("irrChart"), {
+        new Chart(document.getElementById('irrChart'), {
           type: 'bar',
-          data: { labels, datasets: [{ label: 'IRR', data: results.map(r => r.irr) }] },
+          data: { labels: labels, datasets: [{ label: 'IRR', data: results.map(r => r.irr) }] },
           options: {}
         });
-        new Chart(document.getElementById("cbrChart"), {
+        new Chart(document.getElementById('cbrChart'), {
           type: 'bar',
-          data: { labels, datasets: [{ label: 'CBR', data: results.map(r => r.cbr) }] },
+          data: { labels: labels, datasets: [{ label: 'CBR', data: results.map(r => r.cbr) }] },
           options: {}
         });
-      } catch (err) {
-        document.getElementById("results").innerHTML =
-          "<p class='text-danger'>Errore nel calcolo.</p>";
+
+      } catch (error) {
+        document.getElementById('results').innerHTML = '<p class="text-danger">Errore nel calcolo.</p>';
       }
     });
 
