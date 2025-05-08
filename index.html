@@ -11,33 +11,72 @@
   <div class="container mt-4">
     <h1>Cost-Benefit Analysis</h1>
     <form id="calcForm">
-      <!-- Campi di input originali -->
-      <div class="mb-3">
-        <label for="name" class="form-label">Nome progetto</label>
-        <input type="text" class="form-control" id="name" name="name" required>
-      </div>
-      <div class="mb-3">
-        <label for="capex" class="form-label">CAPEX</label>
-        <input type="number" class="form-control" id="capex" name="capex" step="0.01" required>
-      </div>
-      <div class="mb-3">
-        <label for="opex" class="form-label">OPEX</label>
-        <input type="number" class="form-control" id="opex" name="opex" step="0.01" required>
-      </div>
-      <div class="mb-3">
-        <label for="benefits" class="form-label">Benefici</label>
-        <input type="number" class="form-control" id="benefits" name="benefits" step="0.01" required>
-      </div>
-      <div class="mb-3">
-        <label for="years" class="form-label">Anni</label>
-        <input type="number" class="form-control" id="years" name="years" required>
-      </div>
-      <div class="mb-3">
-        <label for="rate" class="form-label">Tasso di sconto (%)</label>
-        <input type="number" class="form-control" id="rate" name="rate" step="0.01" required>
-      </div>
-      <button type="submit" class="btn btn-primary">Calcola CBA</button>
-    </form>
+  <table class="table table-bordered">
+    <thead>
+      <tr>
+        <th>Name</th>
+        <th>CAPEX</th>
+        <th>OPEX</th>
+        <th>Benefits</th>
+        <th>Years</th>
+        <th>Discount Rate (%)</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><input type="text" class="form-control" name="name" value="A.1" required></td>
+        <td><input type="number" class="form-control" name="capex" step="0.01"></td>
+        <td><input type="number" class="form-control" name="opex" step="0.01"></td>
+        <td><input type="number" class="form-control" name="benefits" step="0.01"></td>
+        <td><input type="number" class="form-control" name="years"></td>
+        <td><input type="number" class="form-control" name="rate" step="0.01"></td>
+      </tr>
+      <tr>
+        <td><input type="text" class="form-control" name="name" value="A.2"></td>
+        <td><input type="number" class="form-control" name="capex" step="0.01"></td>
+        <td><input type="number" class="form-control" name="opex" step="0.01"></td>
+        <td><input type="number" class="form-control" name="benefits" step="0.01"></td>
+        <td><input type="number" class="form-control" name="years"></td>
+        <td><input type="number" class="form-control" name="rate" step="0.01"></td>
+      </tr>
+      <tr>
+        <td><input type="text" class="form-control" name="name" value="A.3"></td>
+        <td><input type="number" class="form-control" name="capex" step="0.01"></td>
+        <td><input type="number" class="form-control" name="opex" step="0.01"></td>
+        <td><input type="number" class="form-control" name="benefits" step="0.01"></td>
+        <td><input type="number" class="form-control" name="years"></td>
+        <td><input type="number" class="form-control" name="rate" step="0.01"></td>
+      </tr>
+      <tr>
+        <td><input type="text" class="form-control" name="name" value="A.4"></td>
+        <td><input type="number" class="form-control" name="capex" step="0.01"></td>
+        <td><input type="number" class="form-control" name="opex" step="0.01"></td>
+        <td><input type="number" class="form-control" name="benefits" step="0.01"></td>
+        <td><input type="number" class="form-control" name="years"></td>
+        <td><input type="number" class="form-control" name="rate" step="0.01"></td>
+      </tr>
+      <tr>
+        <td><input type="text" class="form-control" name="name" value="A.5"></td>
+        <td><input type="number" class="form-control" name="capex" step="0.01"></td>
+        <td><input type="number" class="form-control" name="opex" step="0.01"></td>
+        <td><input type="number" class="form-control" name="benefits" step="0.01"></td>
+        <td><input type="number" class="form-control" name="years"></td>
+        <td><input type="number" class="form-control" name="rate" step="0.01"></td>
+      </tr>
+      <tr>
+        <td><input type="text" class="form-control" name="name" value="A.6"></td>
+        <td><input type="number" class="form-control" name="capex" step="0.01"></td>
+        <td><input type="number" class="form-control" name="opex" step="0.01"></td>
+        <td><input type="number" class="form-control" name="benefits" step="0.01"></td>
+        <td><input type="number" class="form-control" name="years"></td>
+        <td><input type="number" class="form-control" name="rate" step="0.01"></td>
+      </tr>
+    </tbody>
+  </table>
+  <button type="submit" class="btn btn-primary">Calculate CBA</button>
+  <button type="button" class="btn btn-secondary" onclick="document.getElementById('calcForm').reset()">Reset CBA</button>
+  <a href="/smartgrideval" class="btn btn-outline-dark">Back to Smartgrideval</a>
+</form>
 
     <div id="results" class="mt-4"></div>
 
