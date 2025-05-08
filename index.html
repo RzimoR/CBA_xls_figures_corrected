@@ -68,17 +68,14 @@ document.getElementById("calcForm").addEventListener("submit", async function(e)
           <th>Name</th><th>CAPEX</th><th>OPEX</th><th>Benefits</th><th>Years</th><th>Rate</th>
           <th>NPV</th><th>IRR</th><th>CBR</th>
         </tr></thead><tbody>`;
-    res.data.forEach(r => {
-      html += `<tr>
-        <td>${r.name}</td><td>${r.capex}</td><td>${r.opex}</td><td>${r.benefits}</td>
-        <td>${r.years}</td><td>${r.rate}</td><td>${r.npv}</td><td>${r.irr}</td><td>${r.cbr}</td>
-      </tr>`;
-    });
-    html += "</tbody></table>";
-    
     const maxNPV = Math.max(...res.data.map(r => r.npv));
-    html = html.replace(/<tr>(.*?)<\/tr>/g, (row) => {
-      const npvMatch = row.match(/<td>(\d+(?:\.\d+)?)<\/td>/g);
+res.data.forEach(r => {
+  const isMax = Math.abs(r.npv - maxNPV) < 0.01;
+  html += `<tr${isMax ? ' style="font-weight:bold"' : ''}>
+    <td>${r.name}</td><td>${r.capex}</td><td>${r.opex}</td><td>${r.benefits}</td>
+    <td>${r.years}</td><td>${r.rate}</td><td>${r.npv}</td><td>${r.irr}</td><td>${r.cbr}</td>
+  </tr>`;
+});
       if (!npvMatch || npvMatch.length < 7) return row;
       const npvInRow = parseFloat(npvMatch[6].replace(/<[^>]+>/g, ''));
       return Math.abs(npvInRow - maxNPV) < 0.01 ? row.replace('<tr>', '<tr style="font-weight:bold">') : row;
