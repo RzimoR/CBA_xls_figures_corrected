@@ -11,7 +11,31 @@
   <div class="container mt-4">
     <h1>Cost-Benefit Analysis</h1>
     <form id="calcForm">
-      <!-- Inserisci qui i campi del form: name, capex, opex, benefits, years, rate -->
+      <div class="mb-3">
+        <label for="name" class="form-label">Nome progetto</label>
+        <input type="text" class="form-control" id="name" name="name" required>
+      </div>
+      <div class="mb-3">
+        <label for="capex" class="form-label">CAPEX</label>
+        <input type="number" class="form-control" id="capex" name="capex" step="0.01" required>
+      </div>
+      <div class="mb-3">
+        <label for="opex" class="form-label">OPEX</label>
+        <input type="number" class="form-control" id="opex" name="opex" step="0.01" required>
+      </div>
+      <div class="mb-3">
+        <label for="benefits" class="form-label">Benefici</label>
+        <input type="number" class="form-control" id="benefits" name="benefits" step="0.01" required>
+      </div>
+      <div class="mb-3">
+        <label for="years" class="form-label">Anni</label>
+        <input type="number" class="form-control" id="years" name="years" required>
+      </div>
+      <div class="mb-3">
+        <label for="rate" class="form-label">Rate (%)</label>
+        <input type="number" class="form-control" id="rate" name="rate" step="0.01" required>
+      </div>
+      <button type="submit" class="btn btn-primary">Calcola CBA</button>
     </form>
     <div id="results" class="mt-4"></div>
     <div class="row mt-4">
@@ -32,19 +56,18 @@
   <script>
     document.getElementById("calcForm").addEventListener("submit", async (e) => {
       e.preventDefault();
-      // Raccogli i dati dal form
       const formData = new FormData(e.target);
       const data = Object.fromEntries(formData.entries());
       try {
         const res = await axios.post("/calculate", data);
         const results = res.data;
 
-        // Calcolo il NPV massimo
+        // Calcola il massimo NPV
         const maxNPV = Math.max(...results.map(r => r.npv));
 
-        // Costruisco la tabella
+        // Costruisci la tabella dei risultati
         let html = `
-          <table class="table table-bordered results-table">
+          <table class="table table-bordered">
             <thead>
               <tr>
                 <th>Nome</th><th>CAPEX</th><th>OPEX</th><th>Benefici</th>
@@ -52,7 +75,6 @@
               </tr>
             </thead>
             <tbody>`;
-
         results.forEach(r => {
           const isBest = Math.abs(r.npv - maxNPV) < 1e-6;
           html += `
@@ -68,40 +90,31 @@
               <td>${r.cbr}</td>
             </tr>`;
         });
-
         html += `
             </tbody>
           </table>
           <button class="btn btn-success" onclick="downloadExcel()">
             Scarica Excel
           </button>`;
-
         document.getElementById("results").innerHTML = html;
 
-        // Disegno i grafici
+        // Disegna i grafici
         const labels = results.map(r => r.name);
-        const npvs   = results.map(r => r.npv);
-        const irrs   = results.map(r => r.irr);
-        const cbrs   = results.map(r => r.cbr);
-
         new Chart(document.getElementById("npvChart"), {
           type: 'bar',
-          data: { labels, datasets: [{ label: 'NPV', data: npvs }] },
+          data: { labels, datasets: [{ label: 'NPV', data: results.map(r => r.npv) }] },
           options: {}
         });
-
         new Chart(document.getElementById("irrChart"), {
           type: 'bar',
-          data: { labels, datasets: [{ label: 'IRR', data: irrs }] },
+          data: { labels, datasets: [{ label: 'IRR', data: results.map(r => r.irr) }] },
           options: {}
         });
-
         new Chart(document.getElementById("cbrChart"), {
           type: 'bar',
-          data: { labels, datasets: [{ label: 'CBR', data: cbrs }] },
+          data: { labels, datasets: [{ label: 'CBR', data: results.map(r => r.cbr) }] },
           options: {}
         });
-
       } catch (err) {
         document.getElementById("results").innerHTML =
           "<p class='text-danger'>Errore nel calcolo.</p>";
