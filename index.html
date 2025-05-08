@@ -1,96 +1,65 @@
 <!DOCTYPE html>
-<html lang="it">
+<html>
 <head>
   <meta charset="UTF-8">
-  <meta http-equiv="X-UA-Compatible" content="IE=edge">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>CBA Calculator</title>
+  <title>CBA Tool</title>
+  <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
 </head>
-<body>
-  <div class="container mt-4">
-    <h1>Cost-Benefit Analysis</h1>
-    <form id="calcForm">
-  <table class="table table-bordered">
-    <thead>
-      <tr>
-        <th>Name</th>
-        <th>CAPEX</th>
-        <th>OPEX</th>
-        <th>Benefits</th>
-        <th>Years</th>
-        <th>Discount Rate (%)</th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr>
-        <td><input type="text" class="form-control" name="name" value="A.1" required></td>
-        <td><input type="number" class="form-control" name="capex" step="0.01"></td>
-        <td><input type="number" class="form-control" name="opex" step="0.01"></td>
-        <td><input type="number" class="form-control" name="benefits" step="0.01"></td>
-        <td><input type="number" class="form-control" name="years"></td>
-        <td><input type="number" class="form-control" name="rate" step="0.01"></td>
-      </tr>
-      <tr>
-        <td><input type="text" class="form-control" name="name" value="A.2"></td>
-        <td><input type="number" class="form-control" name="capex" step="0.01"></td>
-        <td><input type="number" class="form-control" name="opex" step="0.01"></td>
-        <td><input type="number" class="form-control" name="benefits" step="0.01"></td>
-        <td><input type="number" class="form-control" name="years"></td>
-        <td><input type="number" class="form-control" name="rate" step="0.01"></td>
-      </tr>
-      <tr>
-        <td><input type="text" class="form-control" name="name" value="A.3"></td>
-        <td><input type="number" class="form-control" name="capex" step="0.01"></td>
-        <td><input type="number" class="form-control" name="opex" step="0.01"></td>
-        <td><input type="number" class="form-control" name="benefits" step="0.01"></td>
-        <td><input type="number" class="form-control" name="years"></td>
-        <td><input type="number" class="form-control" name="rate" step="0.01"></td>
-      </tr>
-      <tr>
-        <td><input type="text" class="form-control" name="name" value="A.4"></td>
-        <td><input type="number" class="form-control" name="capex" step="0.01"></td>
-        <td><input type="number" class="form-control" name="opex" step="0.01"></td>
-        <td><input type="number" class="form-control" name="benefits" step="0.01"></td>
-        <td><input type="number" class="form-control" name="years"></td>
-        <td><input type="number" class="form-control" name="rate" step="0.01"></td>
-      </tr>
-      <tr>
-        <td><input type="text" class="form-control" name="name" value="A.5"></td>
-        <td><input type="number" class="form-control" name="capex" step="0.01"></td>
-        <td><input type="number" class="form-control" name="opex" step="0.01"></td>
-        <td><input type="number" class="form-control" name="benefits" step="0.01"></td>
-        <td><input type="number" class="form-control" name="years"></td>
-        <td><input type="number" class="form-control" name="rate" step="0.01"></td>
-      </tr>
-      <tr>
-        <td><input type="text" class="form-control" name="name" value="A.6"></td>
-        <td><input type="number" class="form-control" name="capex" step="0.01"></td>
-        <td><input type="number" class="form-control" name="opex" step="0.01"></td>
-        <td><input type="number" class="form-control" name="benefits" step="0.01"></td>
-        <td><input type="number" class="form-control" name="years"></td>
-        <td><input type="number" class="form-control" name="rate" step="0.01"></td>
-      </tr>
-    </tbody>
-  </table>
-  <button type="submit" class="btn btn-primary">Calculate CBA</button>
-  <button type="button" class="btn btn-secondary" onclick="document.getElementById('calcForm').reset()">Reset CBA</button>
-  <a href="/smartgrideval" class="btn btn-outline-dark">Back to Smartgrideval</a>
-</form>
+<body class="p-4">
+  <div class="d-flex align-items-center mb-4">
+    <!-- Logo -->
+    <img src="/static/logo.png" alt="Logo" height="50" class="me-3">
+    <h1 class="mb-0">Economic Evaluation of Investment Alternatives</h1>
+  </div>
 
-    <div id="results" class="mt-4"></div>
+  <form id="calcForm">
+    <table class="table table-bordered">
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>CAPEX</th>
+          <th>OPEX</th>
+          <th>Benefits</th>
+          <th>Years</th>
+          <th>Discount Rate (%)</th>
+        </tr>
+      </thead>
+      <tbody>
+        <!-- Six rows A.1 to A.6 -->
+        {% for proj in ['A.1','A.2','A.3','A.4','A.5','A.6'] %}
+        <tr>
+          <td><input type="text" name="name" class="form-control" value="{{ proj }}" required></td>
+          <td><input type="number" name="capex" class="form-control" step="0.01"></td>
+          <td><input type="number" name="opex" class="form-control" step="0.01"></td>
+          <td><input type="number" name="benefits" class="form-control" step="0.01"></td>
+          <td><input type="number" name="years" class="form-control"></td>
+          <td><input type="number" name="rate" class="form-control" step="0.01"></td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+    <button type="submit" class="btn btn-primary">Calculate CBA</button>
+    <button type="button" class="btn btn-secondary" onclick="document.getElementById('calcForm').reset()">Reset CBA</button>
+    <a href="/smartgrideval" class="btn btn-outline-dark">Back to Smartgrideval</a>
+  </form>
 
-    <div class="row mt-4">
-      <div class="col"><canvas id="npvChart"></canvas></div>
-      <div class="col"><canvas id="irrChart"></canvas></div>
-      <div class="col"><canvas id="cbrChart"></canvas></div>
+  <div id="results" class="mt-4"></div>
+
+  <div class="row mt-4">
+    <div class="col">
+      <canvas id="npvChart"></canvas>
+    </div>
+    <div class="col">
+      <canvas id="irrChart"></canvas>
+    </div>
+    <div class="col">
+      <canvas id="cbrChart"></canvas>
     </div>
   </div>
 
-  <!-- Librerie esterne -->
-  <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-  <!-- Script di gestione e evidenziazione NPV -->
   <script>
     document.getElementById('calcForm').addEventListener('submit', async function(e) {
       e.preventDefault();
@@ -100,62 +69,34 @@
         const res = await axios.post('/calculate', data);
         const results = res.data;
 
-        // Calcolo del massimo NPV
+        // Trovo il massimo NPV
         const maxNPV = Math.max(...results.map(r => r.npv));
 
-        // Costruzione tabella dei risultati
-        let html = `
-          <table class="table table-bordered">
-            <thead>
-              <tr>
-                <th>Nome</th><th>CAPEX</th><th>OPEX</th><th>Benefici</th>
-                <th>Anni</th><th>Tasso</th><th>NPV</th><th>IRR</th><th>CBR</th>
-              </tr>
-            </thead>
-            <tbody>`;
+        // Costruisco la tabella
+        let html = '<table class="table table-bordered"><thead><tr>' +
+          '<th>Name</th><th>CAPEX</th><th>OPEX</th><th>Benefits</th>' +
+          '<th>Years</th><th>Rate</th><th>NPV</th><th>IRR</th><th>CBR</th>' +
+          '</tr></thead><tbody>';
 
         results.forEach(r => {
           const isBest = Math.abs(r.npv - maxNPV) < 1e-6;
-          html += `
-            <tr${isBest ? ' class="table-success"' : ''}>
-              <td>${r.name}</td>
-              <td>${r.capex}</td>
-              <td>${r.opex}</td>
-              <td>${r.benefits}</td>
-              <td>${r.years}</td>
-              <td>${r.rate}</td>
-              <td>${r.npv}</td>
-              <td>${r.irr}</td>
-              <td>${r.cbr}</td>
-            </tr>`;
+          html += `<tr${isBest ? ' class="table-success"' : ''}>` +
+            `<td>${r.name}</td><td>${r.capex}</td><td>${r.opex}</td>` +
+            `<td>${r.benefits}</td><td>${r.years}</td><td>${r.rate}</td>` +
+            `<td>${r.npv}</td><td>${r.irr}</td><td>${r.cbr}</td></tr>`;
         });
 
-        html += `
-            </tbody>
-          </table>
-          <button class="btn btn-success" onclick="downloadExcel()">Scarica Excel</button>`;
-
+        html += '</tbody></table>' +
+          '<button class="btn btn-success" onclick="downloadExcel()">Download Excel</button>';
         document.getElementById('results').innerHTML = html;
 
-        // Disegno grafici
+        // Disegno i grafici
         const labels = results.map(r => r.name);
-        new Chart(document.getElementById('npvChart'), {
-          type: 'bar',
-          data: { labels, datasets: [{ label: 'NPV', data: results.map(r => r.npv) }] },
-          options: {}
-        });
-        new Chart(document.getElementById('irrChart'), {
-          type: 'bar',
-          data: { labels, datasets: [{ label: 'IRR', data: results.map(r => r.irr) }] },
-          options: {}
-        });
-        new Chart(document.getElementById('cbrChart'), {
-          type: 'bar',
-          data: { labels, datasets: [{ label: 'CBR', data: results.map(r => r.cbr) }] },
-          options: {}
-        });
+        new Chart(document.getElementById('npvChart'), { type: 'bar', data: { labels, datasets: [{ label: 'NPV', data: results.map(r => r.npv) }] }, options: {} });
+        new Chart(document.getElementById('irrChart'), { type: 'bar', data: { labels, datasets: [{ label: 'IRR', data: results.map(r => r.irr) }] }, options: {} });
+        new Chart(document.getElementById('cbrChart'), { type: 'bar', data: { labels, datasets: [{ label: 'CBR', data: results.map(r => r.cbr) }] }, options: {} });
       } catch (err) {
-        document.getElementById('results').innerHTML = '<p class="text-danger">Errore nel calcolo.</p>';
+        document.getElementById('results').innerHTML = '<p class="text-danger">Error in calculation.</p>';
       }
     });
 
