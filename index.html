@@ -130,7 +130,7 @@
 <script>
     const MAX_ROWS = 6;
 
-    // Generate input rows
+    // Genera le righe di input
     function generateInputRows() {
         const tbody = document.getElementById('input-rows');
         tbody.innerHTML = '';
@@ -155,12 +155,17 @@
         document.getElementById('results-section').style.display = 'none';
     }
 
-    // Calculate CBA
+    // Calcola CBA
     async function calculateCBA() {
         const rows = document.querySelectorAll('#input-rows tr');
         const data = [];
         rows.forEach(row => {
             const inputs = row.querySelectorAll('input');
+            // Prendi solo le righe dove almeno un campo è compilato
+            const isAnyFilled = Array.from(inputs).some(input => input.value.trim() !== "");
+            if (!isAnyFilled) return; // salta le righe completamente vuote
+
+            // Prendi solo le righe con tutti i campi compilati
             const name = inputs[0].value.trim();
             const capex = parseFloat(inputs[1].value);
             const opex = parseFloat(inputs[2].value);
@@ -168,7 +173,6 @@
             const years = parseInt(inputs[4].value);
             const rate = parseFloat(inputs[5].value);
 
-            // Only include rows with all fields filled
             if (
                 name &&
                 !isNaN(capex) &&
@@ -181,12 +185,13 @@
             }
         });
 
+        // Se non c'è almeno una alternativa completa
         if (data.length === 0) {
             alert('Please enter at least one complete alternative.');
             return;
         }
 
-        // API call to backend
+        // Chiamata API backend
         const response = await fetch('/calculate', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
@@ -196,11 +201,11 @@
         showResults(results);
     }
 
-    // Show results and highlight max NPV
+    // Mostra risultati e evidenzia NPV massimo
     function showResults(results) {
         const tbody = document.querySelector('#results-table tbody');
         tbody.innerHTML = '';
-        // Find max NPV (exclude error rows)
+        // Trova il NPV massimo tra le alternative valide
         let maxNPV = -Infinity;
         results.forEach(r => {
             if (typeof r.npv === 'number' && r.npv > maxNPV) maxNPV = r.npv;
